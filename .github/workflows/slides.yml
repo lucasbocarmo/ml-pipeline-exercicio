@@ -1,0 +1,33 @@
+# .github/workflows/slides.yml
+name: Gerar Slides PDF
+
+on:
+  push:
+    paths:
+      # Este workflow só vai rodar se você alterar
+      # arquivos .md dentro da pasta docs/
+      - "docs/*.md"
+
+jobs:
+  build-slides:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      # Instala o Pandoc e o LaTeX (necessário para criar PDF)
+      # Como o exercício avisou, este passo pode demorar um pouco.
+      - name: Instalar Pandoc e LaTeX
+        run: sudo apt-get update && sudo apt-get install -y pandoc texlive-xetex
+        
+      # Converte o .md para .pdf
+      # --slide-level=2 diz para criar um novo slide a cada Título 2 (##)
+      - name: Converter Markdown em PDF
+        run: |
+          pandoc docs/presentation.md -o slides.pdf --slide-level=2 --pdf-engine=xelatex
+      
+      # Publica o slides.pdf como um artefato
+      - name: Publicar Artefato
+        uses: actions/upload-artifact@v4
+        with:
+          name: slides-pdf
+          path: slides.pdf
